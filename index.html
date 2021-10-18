@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Capilearn</title>
+</head>
+<body onload="init()">
+<h1>Capilearn</h1>
+    <button onclick="start()">Démarrer</button>
+    <div id="game">
+        test
+    </div>
+<p id="check"></p>
+</body>
+</html>
+
+<script>
+
+    function init() {
+        var start = document.getElementById('game');
+        start.style.display = 'none';
+    }
+    function start(){
+        var start = document.getElementById('game');
+        start.style.display = 'block';
+        var getHttpRequest = function () {
+            var httpRequest = false;
+            if (window.XMLHttpRequest) { // Mozilla, Safari,...
+                httpRequest = new XMLHttpRequest();
+                if (httpRequest.overrideMimeType) {
+                    httpRequest.overrideMimeType('text/json');
+                }
+            } else if (window.ActiveXObject)// IE
+            {
+                try {
+                    httpRequest = new ActiveXObject("Msxml2.XMLHTTP");
+                } catch (e) {
+                    try {
+                        httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
+                    } catch (e) {
+                    }
+                }
+            }
+
+            if (!httpRequest) {
+                alert('Abandon :( Impossible de créer une instance XMLHTTP');
+                return false;
+            }
+            return httpRequest
+        }
+
+        var xhr = getHttpRequest()
+        xhr.open('GET', 'capitales.json', true) //recup du fichier gain
+        xhr.send()
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    document.getElementById('check').innerText = "";
+                    req = xhr.responseText;
+                    capitales = JSON.parse(req);
+                    for (var pays in capitales) {
+                        console.log(pays+" : "+capitales[pays]);
+                    }
+                    console.log(capitales['Arabie saoudite']);
+                } else {
+                    document.getElementById('check').innerText = 'Erreur 404';
+                }
+            }
+            if (xhr.readyState !== 4) {
+                document.getElementById('check').innerText = 'Chargement';
+            }
+        }
+    }
+
+
+</script>

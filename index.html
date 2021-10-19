@@ -6,23 +6,29 @@
 </head>
 <body onload="init()">
 <h1>Capilearn</h1>
-    <button onclick="start()">Démarrer</button>
+    <button id="start" onclick="start(game)">Démarrer</button>
     <div id="game">
-        test
+        <p id="pays"></p>
+        <p id="capitale"></p>
+
     </div>
 <p id="check"></p>
 </body>
 </html>
 
 <script>
-
+    i=0;
+    score = 0;
     function init() {
-        var start = document.getElementById('game');
-        start.style.display = 'none';
+        var game = document.getElementById('game');
+        game.style.display = 'none';
     }
-    function start(){
-        var start = document.getElementById('game');
-        start.style.display = 'block';
+    function start(callback){
+
+        var game = document.getElementById('game');
+        game.style.display = 'block';
+        var start = document.getElementById('start');
+        start.style.display = 'none';
         var getHttpRequest = function () {
             var httpRequest = false;
             if (window.XMLHttpRequest) { // Mozilla, Safari,...
@@ -52,16 +58,22 @@
         var xhr = getHttpRequest()
         xhr.open('GET', 'capitales.json', true) //recup du fichier gain
         xhr.send()
+
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
                     document.getElementById('check').innerText = "";
                     req = xhr.responseText;
                     capitales = JSON.parse(req);
-                    for (var pays in capitales) {
-                        console.log(pays+" : "+capitales[pays]);
-                    }
-                    console.log(capitales['Arabie saoudite']);
+
+                    var listeCapitales = Object.keys(capitales).map(function(cle) {
+                        return [cle, capitales[cle]];
+                    });
+
+                    callback(listeCapitales);
+
+
+
                 } else {
                     document.getElementById('check').innerText = 'Erreur 404';
                 }
@@ -72,5 +84,43 @@
         }
     }
 
+    function game(liste){
+        document.getElementById('pays').innerText = liste[0][0];
+        i=1;
+        document.addEventListener("keydown", event => {
+            if (event.isComposing || event.keyCode === 32)
+            {
+                if (i===liste.length)
+                {
+                    fin();
+                    return;
+                }
+                document.getElementById('capitale').innerText = '';
+                document.getElementById('pays').innerText = liste[i][0];
+                i += 1;
+            }
+            else
+            {
+                document.getElementById('capitale').innerText = liste[i-1][1];
+                score+=1;
+            }
+        });
+    }
+    function fin(){
+        document.getElementById('pays').innerText = score;
+    }
 
 </script>
+
+<style>
+    h1{
+        font-family: Futura-Normal;
+        font-size: 80px;
+        text-align: center;
+    }
+    #game{
+        font-family: "Roboto";
+        font-size: 40px;
+        text-align: center;
+    }
+</style>

@@ -17,14 +17,20 @@
 </html>
 
 <script>
-    i=0;
+    i = 0;
+    itemp = 0;
+    temp = false;
+    capitalesNonConnue = new Object();
     score = 0;
+    finJeu = false;
+
     function init() {
         var game = document.getElementById('game');
         game.style.display = 'none';
     }
-    function start(callback){
 
+    function start(callback){
+        //On télécharge le fichier
         var game = document.getElementById('game');
         game.style.display = 'block';
         var start = document.getElementById('start');
@@ -85,29 +91,74 @@
     }
 
     function game(liste){
-        document.getElementById('pays').innerText = liste[0][0];
-        i=1;
+        //On démare le jeu
+
+        document.getElementById('pays').innerText = i+liste[0][0];
         document.addEventListener("keydown", event => {
-            if (event.isComposing || event.keyCode === 32)
+            if (event.isComposing || event.code === 'Space')
             {
-                if (i===liste.length)
+                if (i+1===liste.length)
                 {
                     fin();
+                    document.removeEventListener("keydown", event => {});
                     return;
                 }
+                i += 1;
+                itemp = i;
                 document.getElementById('capitale').innerText = '';
                 document.getElementById('pays').innerText = liste[i][0];
-                i += 1;
+                temp=false;
+
             }
+
+            else if (event.isComposing || event.code === "NumpadSubtract")
+            {
+               score-=1;
+            }
+
+            else if (event.isComposing || event.code === "Semicolon")
+            {
+                i = 190;
+            }
+
+            else if (event.isComposing || event.code === 'Backspace')
+            {
+                if (i>0){
+                    itemp = i;
+                    i-=1;
+                    document.getElementById('capitale').innerText = '';
+                    document.getElementById('pays').innerText = liste[i][0];
+                }
+            }
+            else if (event.isComposing || event.code === "NumpadAdd")
+            {
+                score+=1;
+            }
+
             else
             {
-                document.getElementById('capitale').innerText = liste[i-1][1];
+                if(temp === false){
+                document.getElementById('capitale').innerText = liste[i][1];
+                capitalesNonConnue[liste[i][0]] = liste[i][1];
                 score+=1;
+                temp = true;
+                }
             }
         });
     }
+
     function fin(){
-        document.getElementById('pays').innerText = score;
+        if (finJeu === false){
+            finJeu=true;
+            document.getElementById('pays').innerText = 'Score : '+score;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", 'script', true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            console.log(capitalesNonConnue);
+            xhr.send("message="+capitalesNonConnue);
+
+            //inserer l'objet dans le fichier
+        }
     }
 
 </script>
